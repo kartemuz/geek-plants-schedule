@@ -1,38 +1,81 @@
 # Представление таблиц БД в виде классов
-
-
+import enum, datetime
 from typing import Annotated, Optional
+from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 from server.database import Base
 
 
-class Groups(Base):
-    __tablename__ = 'direction'
+int_PK = Annotated[int, mapped_column(primary_key=True)]
 
 
-class Flows(Base):
-    __tablename__ = 'flow'
+class Group(Base):
+    tablename = 'group'
+    id: Mapped[int_PK]
+    direction_id: Mapped[int] = mapped_column(ForeignKey('direction.id'), ondelete="CASCADE")
 
 
-class FlowsGroups(Base):
-    __tablename__ = 'flows_group'
+class Flow(Base):
+    tablename = 'flow'
+    id: Mapped[int_PK]
+    discipline_id: Mapped[int] = mapped_column(ForeignKey('discipline.id'), ondelete="CASCADE")
 
 
-class Teachers(Base):
-    __tablename__ = 'teacher'
+class FlowGroup(Base):
+    tablename = 'flow_group'
+    flow_id: Mapped[int] = mapped_column(ForeignKey('flow.id'), ondelete="CASCADE")
+    group_id: Mapped[int] = mapped_column(ForeignKey('group.id'), ondelete="CASCADE")
 
 
-class Directions(Base):
-    __tablename__ = 'direction'
+class Teacher(Base):
+    tablename = 'teacher'
+    id: Mapped[int_PK]
+    lastname: Mapped[str]
+    firstname: Mapped[str]
+    surname: Mapped[Optional[str]]
+    position: Mapped[str]
+    teaching_profile: Mapped[Optional[str]]
 
 
-class Disciplines(Base):
-    __tablename__ = 'discipline'
+class Type(enum.Enum):
+    pk = "ПК"
+    pp = "ПП"
+    s = "С"
+
+
+class Direction(Base):
+    tablename = 'direction'
+    id: Mapped[int_PK]
+    name: Mapped[str]
+    type: Mapped[Type]
+    practice: Mapped[Optional[str]]
+
+
+class Discipline(Base):
+    tablename = 'discipline'
+    id: Mapped[int_PK]
+    name: Mapped[str]
+    lecture_hours: Mapped[int]
+    practice_hours: Mapped[int]
 
 
 class Schedule(Base):
-    __tablename__ = 'schedule'
+    tablename = 'schedule'
+    id: Mapped[int_PK]
+    date: Mapped[datetime.date]
+    time: Mapped[datetime.time]
+    room: Mapped[Optional[str]]
+    type: Mapped[str]
+    teacher_id: Mapped[Optional[int]] = mapped_column(ForeignKey('teacher.id'), ondelete="SET NULL")
+    discipline_id: Mapped[Optional[int]] = mapped_column(ForeignKey('discipline.id'), ondelete="SET NULL")
+    flow_id: Mapped[Optional[int]] = mapped_column(ForeignKey('flow.id'), ondelete="SET NULL")
 
 
 class User(Base):
-    __tablename__ = 'user'
+    tablename = 'user'
+    login: Mapped[int_PK]
+    user_type: Mapped[int]
+    password: Mapped[str]
+    lastname: Mapped[str]
+    firstname: Mapped[str]
+    surname: Mapped[str]

@@ -27,17 +27,51 @@ async def update_data(model, **kwargs) -> bool:
 
 
 async def delete_by_id(model, id_: int) -> bool:
-    pass
+    result = False
+    async with session_factory() as session:
+        try:
+            x = session.query(model).filter_by(id=id_).first()
+            session.delete(x)
+            await session.commit()
+            result = True
+        except exceptions.UniqueViolationError:
+            pass
+        except exceptions.NotNullViolationError:
+            pass
+        except exceptions.CheckViolationError:
+            pass
+    return result
 
 
 # Возвращает model
 async def select_by_id(model, id_: int):
-    pass
+    result = None
+    async with session_factory() as session:
+        try:
+            selected_model = session.get(model, id_)
+            result = selected_model
+        except exceptions.UniqueViolationError:
+            pass
+        except exceptions.NotNullViolationError:
+            pass
+        except exceptions.CheckViolationError:
+            pass
+    return result
 
 
 # Возвращает записи либо по id учителя
 async def select_schedule_by_teacher(teacher: int) -> List[Schedule]:
-    pass
+    async with session_factory() as session:
+        try:
+            selected_schedule = session.query(Schedule).filter_by(teacher_id=teacher)
+            result = selected_schedule
+        except exceptions.UniqueViolationError:
+            pass
+        except exceptions.NotNullViolationError:
+            pass
+        except exceptions.CheckViolationError:
+            pass
+    return result
 
 
 # Поиск по первым символам

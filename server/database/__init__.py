@@ -16,7 +16,7 @@ session_factory = async_sessionmaker(engine)
 
 class Base(DeclarativeBase):
 
-    repr_cols_num = 3
+    repr_cols_num = 4
     repr_cols: Tuple[str] = tuple()
 
     def __repr__(self):

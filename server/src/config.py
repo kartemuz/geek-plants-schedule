@@ -24,9 +24,16 @@ class Settings(BaseSettings):
     SERVER_HOST: str
     SERVER_PORT: int
 
+    CLIENT_HOST: str
+    CLIENT_PORT: int
+
     @property
     def server_url(self):
         return f"https://{self.SERVER_HOST}:{self.SERVER_PORT}"
+
+    @property
+    def client_url(self):
+        return f"https://{self.CLIENT_HOST}:{self.CLIENT_PORT}"
 
 
 settings = Settings()

@@ -32,12 +32,12 @@ class Settings(BaseSettings):
         return f"http://{self.SERVER_HOST}:{self.SERVER_PORT}"
 
     @property
-    def client_url(self):
-        return f"{self.CLIENT_HOST}:{self.CLIENT_PORT}"
+    def client_host(self):
+        return f"http://{self.CLIENT_HOST}"
 
     @property
-    def client_http_url(self):
-        return f"http://{self.client_url}"
+    def client_url(self):
+        return f"http://{self.CLIENT_HOST}:{self.CLIENT_PORT}"
 
 
 settings = Settings()

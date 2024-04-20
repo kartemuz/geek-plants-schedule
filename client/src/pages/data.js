@@ -1,19 +1,19 @@
 import React from "react";
 const columns = [
   {name: "ID", uid: "id", sortable: true},
-  {name: "NAME", uid: "name", sortable: true},
-  {name: "AGE", uid: "age", sortable: true},
-  {name: "ROLE", uid: "role", sortable: true},
-  {name: "TEAM", uid: "team"},
-  {name: "EMAIL", uid: "email"},
-  {name: "STATUS", uid: "status", sortable: true},
-  {name: "ACTIONS", uid: "actions"},
+  {name: "ФИО", uid: "name", sortable: true},
+  {name: "Возраст", uid: "age", sortable: true},
+  {name: "Должность", uid: "role", sortable: true},
+  {name: "Команда", uid: "team"},
+  {name: "Почта", uid: "email"},
+  {name: "Статус", uid: "status", sortable: true},
+  {name: "Действия", uid: "actions"},
 ];
 
 const statusOptions = [
-  {name: "Active", uid: "active"},
-  {name: "Paused", uid: "paused"},
-  {name: "Vacation", uid: "vacation"},
+  {name: "Работает", uid: "active"},
+  {name: "В отпуске", uid: "paused"},
+  {name: "Уволен", uid: "vacation"},
 ];
 
 const users = [

@@ -1,4 +1,7 @@
 function FlowsPage(){
+    
+    document.title = 'Потоки';
+
     return(
         <div className="">Потоки</div>
     )

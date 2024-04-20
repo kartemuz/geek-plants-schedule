@@ -6,10 +6,6 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    # True - для запуска на сервере
-    # False - для работы в IDE
-    SERVER_MODE: Final = False
-
     DEBUG: Final = True
 
     DB_HOST: str
@@ -23,7 +19,7 @@ class Settings(BaseSettings):
         return f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
     # Файл .env (с переменными окружения) располагается в одной директории с main.py (точкой входа)
-    model_config = SettingsConfigDict(env_file=".env" if SERVER_MODE else "server/.env")
+    model_config = SettingsConfigDict(env_file="server/.env")
 
     SERVER_HOST: str
     SERVER_PORT: int

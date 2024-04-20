@@ -1,12 +1,13 @@
 # Точка входа
 
 
-import asyncio
+from fastapi import FastAPI
+from server.src.routers import api_router
 
 
-async def main():
-    pass
+app = FastAPI(
+    title='Schedule'
+)
 
 
-if __name__ == '__main__':
-    asyncio.get_event_loop().run_until_complete(main())
+app.include_router(api_router)

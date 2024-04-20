@@ -11,7 +11,7 @@ search_schedule_router = APIRouter(
 
 
 @search_schedule_router.get('/group')
-async def search_schedule_by_group(name: str):
+async def search_group(name: int):
     async with session_factory() as session:
         query = select(models.Group).filter(models.Group.id.startswith(name))
         result = await session.execute(query)
@@ -19,8 +19,8 @@ async def search_schedule_by_group(name: str):
 
 
 @search_schedule_router.get('/teacher')
-async def search_schedule_by_group(lastname: str):
+async def search_teacher(lastname: str):
     async with session_factory() as session:
-        query = select(models.Teacher).filter(models.Teacher.lastname.startswith(lastname))
+        query = select(models.Teacher).filter(models.Teacher.lastname.like(f'%{lastname}%'))
         result = await session.execute(query)
         return result.scalars().all()

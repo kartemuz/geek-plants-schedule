@@ -1,11 +1,13 @@
 # Представление таблиц БД в виде классов
-import enum
-import datetime
-from typing import Annotated, Optional
 
+
+import datetime
+
+
+from typing import Annotated, Optional
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
-from server.database import Base
+from server.src.database import Base
 
 
 int_PK = Annotated[int, mapped_column(primary_key=True)]
@@ -13,8 +15,8 @@ int_PK = Annotated[int, mapped_column(primary_key=True)]
 
 class Group(Base):
     __tablename__ = 'group'
-    n_group: Mapped[int_PK]
-    direction_id: Mapped[int] = mapped_column(ForeignKey('direction.id', ondelete="CASCADE"))
+    id: Mapped[int_PK]
+    direction_id: Mapped[Optional[int]] = mapped_column(ForeignKey('direction.id', ondelete="CASCADE"))
 
 
 class Flow(Base):
@@ -23,10 +25,10 @@ class Flow(Base):
     discipline_id: Mapped[int] = mapped_column(ForeignKey('discipline.id', ondelete="CASCADE"))
 
 
-# class FlowGroup(Base):
-#     __tablename__ = 'flow_group'
-#     flow_id: Mapped[int] = mapped_column(ForeignKey('flow.id', ondelete="CASCADE"))
-#     group_id: Mapped[int] = mapped_column(ForeignKey('group.id', ondelete="CASCADE"))
+class FlowGroup(Base):
+    __tablename__ = 'flow_group'
+    flow_id: Mapped[int] = mapped_column(ForeignKey('flow.id', ondelete="CASCADE"), primary_key=True)
+    group_id: Mapped[int] = mapped_column(ForeignKey('group.id', ondelete="CASCADE"), primary_key=True)
 
 
 class Teacher(Base):
@@ -35,14 +37,8 @@ class Teacher(Base):
     lastname: Mapped[str]
     firstname: Mapped[str]
     surname: Mapped[Optional[str]]
-    position: Mapped[str]
+    position: Mapped[Optional[str]]
     teaching_profile: Mapped[Optional[str]]
-
-
-# class Type(enum.Enum):
-#     pk = "ПК"
-#     pp = "ПП"
-#     s = "С"
 
 
 class Type:
@@ -55,7 +51,6 @@ class Direction(Base):
     __tablename__ = 'direction'
     id: Mapped[int_PK]
     name: Mapped[str]
-    # type: Mapped[Type]
     type: Mapped[str]
     practice: Mapped[Optional[str]]
 
@@ -64,8 +59,8 @@ class Discipline(Base):
     __tablename__ = 'discipline'
     id: Mapped[int_PK]
     name: Mapped[str]
-    lecture_hours: Mapped[int]
-    practice_hours: Mapped[int]
+    lecture_hours: Mapped[Optional[int]]
+    practice_hours: Mapped[Optional[int]]
 
 
 class Schedule(Base):
@@ -73,10 +68,10 @@ class Schedule(Base):
     id: Mapped[int_PK]
     date: Mapped[datetime.date]
     time: Mapped[datetime.time]
-    room: Mapped[Optional[str]]
-    type: Mapped[str]
-    teacher_id: Mapped[Optional[int]] = mapped_column(ForeignKey('teacher.id', ondelete="SET NULL"))
-    discipline_id: Mapped[Optional[int]] = mapped_column(ForeignKey('discipline.id', ondelete="SET NULL"))
+    room: Mapped[str]
+    type: Mapped[Optional[str]]
+    teacher_id: Mapped[int] = mapped_column(ForeignKey('teacher.id', ondelete="SET NULL"))
+    discipline_id: Mapped[int] = mapped_column(ForeignKey('discipline.id', ondelete="SET NULL"))
     flow_id: Mapped[Optional[int]] = mapped_column(ForeignKey('flow.id', ondelete="SET NULL"))
 
 
@@ -87,4 +82,8 @@ class User(Base):
     password: Mapped[str]
     lastname: Mapped[str]
     firstname: Mapped[str]
-    surname: Mapped[str]
+    surname: Mapped[Optional[str]]
+
+
+# class Organization(Base):
+#     __tablename__ = 'organization'

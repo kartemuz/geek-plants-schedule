@@ -1,8 +1,7 @@
 # Движок БД
 
-from server.config import settings
+from server.src.config import settings
 from typing import Tuple
-
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
 

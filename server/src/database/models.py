@@ -1,11 +1,10 @@
 # Представление таблиц БД в виде классов
-import enum
 import datetime
 from typing import Annotated, Optional
 
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
-from server.database import Base
+from server.src.database import Base
 
 
 int_PK = Annotated[int, mapped_column(primary_key=True)]
@@ -37,12 +36,6 @@ class Teacher(Base):
     surname: Mapped[Optional[str]]
     position: Mapped[str]
     teaching_profile: Mapped[Optional[str]]
-
-
-# class Type(enum.Enum):
-#     pk = "ПК"
-#     pp = "ПП"
-#     s = "С"
 
 
 class Type:

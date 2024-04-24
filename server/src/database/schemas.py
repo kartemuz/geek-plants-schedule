@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional
+from server.src.database.models import dir_type
 
 import datetime
 
@@ -7,7 +8,7 @@ import datetime
 class Direction(BaseModel):
     id: Optional[int] = None
     name: str
-    type: str
+    type: dir_type
     practice: Optional[str] = None
 
 

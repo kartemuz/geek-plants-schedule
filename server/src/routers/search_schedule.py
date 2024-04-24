@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from server.src.database import models
 from server.src.database import session_factory
-from sqlalchemy import select
+from sqlalchemy import select, cast, String
 
 
 search_schedule_router = APIRouter(
@@ -13,7 +13,7 @@ search_schedule_router = APIRouter(
 @search_schedule_router.get('/group')
 async def search_group(name: int):
     async with session_factory() as session:
-        query = select(models.Group).filter(models.Group.id.startswith(name))
+        query = select(models.Group).filter(cast(models.Group.id, String).like(f'%{name}%'))
         result = await session.execute(query)
         return result.scalars().all()
 

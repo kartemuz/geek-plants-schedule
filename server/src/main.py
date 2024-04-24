@@ -17,7 +17,8 @@ app.include_router(api_router)
 
 origins = [
     settings.client_url,
-    settings.client_host
+    settings.client_host,
+    "*"
 ]
 
 

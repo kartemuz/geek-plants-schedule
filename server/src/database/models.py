@@ -2,6 +2,7 @@
 
 
 import datetime
+import enum
 
 
 from typing import Annotated, Optional
@@ -41,17 +42,17 @@ class Teacher(Base):
     teaching_profile: Mapped[Optional[str]]
 
 
-class Type:
-    pk: str = 'ПК'
-    pp: str = 'ПП'
-    s: str = 'С'
+class dir_type(enum.Enum):
+    ПК = 'ПК'
+    ПП = 'ПП'
+    С = 'С'
 
 
 class Direction(Base):
     __tablename__ = 'direction'
     id: Mapped[int_PK]
     name: Mapped[str]
-    type: Mapped[str]
+    type: Mapped[dir_type]
     practice: Mapped[Optional[str]]
 
 

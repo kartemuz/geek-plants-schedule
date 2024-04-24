@@ -1,4 +1,7 @@
 function SchedulesPage(){
+
+    document.title = 'Расписание';
+
     return(
         <div className="">Расписание</div>
     )

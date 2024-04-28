@@ -24,6 +24,7 @@ class Teacher(BaseModel):
 class Group(BaseModel):
     id: Optional[int] = None
     direction_id: Optional[int] = None
+    file_upload: Optional[str] = None
 
 
 class Flow(BaseModel):
@@ -47,7 +48,28 @@ class Schedule(BaseModel):
     teacher_id: int
     discipline_id: int
     flow_id: int
+    change_id: Optional[int] = None
 
 
 class User(BaseModel):
-    pass
+    login: int
+    user_type: int
+    password: str
+    lastname: str
+    firstname: str
+    surname: str
+
+
+class UserRole(BaseModel):
+    id: int
+    title: int
+
+
+class UserOpportunity(BaseModel):
+    user_type: int
+    option: int
+
+
+class Options(BaseModel):
+    id: int
+    title: str

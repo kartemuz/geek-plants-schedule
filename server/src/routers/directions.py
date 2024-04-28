@@ -3,7 +3,7 @@ from server.src.database import models
 from server.src.database import queries
 from typing import Optional, List
 from server.src.database import schemas
-from openpyxl import load_workbook
+from openpyxl import Workbook
 
 
 directions_router = APIRouter(
@@ -12,7 +12,6 @@ directions_router = APIRouter(
 )
 model = models.Direction
 schema = schemas.Direction
-# workbook = load_workbook('static/direction.xlsx')
 
 
 @directions_router.get('/get')
@@ -38,5 +37,10 @@ async def edit(data: schema):
 # @directions_router.get('/import')
 # async def import_():
 #     data = await queries.db_select_by_id(model)
+#     wb = Workbook()
+#     ws = wb.active
+#
 #     for i in data:
-#         print(i.__dict__)
+#         ws.append([i.id])
+#     wb.save('server/static/test.xlsx')
+#     wb.close()

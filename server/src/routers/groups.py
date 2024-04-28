@@ -1,8 +1,8 @@
 from fastapi import APIRouter
-from server.src.database import models
-from server.src.database import queries
+from server.src.database import models, queries, session_factory
 from typing import Optional, List
 from server.src.database import schemas
+from sqlalchemy import select
 
 
 groups_router = APIRouter(
@@ -14,8 +14,14 @@ schema = schemas.Group
 
 
 @groups_router.get('/get')
-async def get(id: Optional[int] = None) -> schema | List[schema]:
-    return await queries.db_select_by_id(model, id)
+async def get(id: Optional[int] = None, direction_id: Optional[int] = None) -> schema | List[schema]:
+    if direction_id is not None:
+        async with session_factory() as session:
+            query = select(model).where(model.direction_id == direction_id)
+            result = await session.execute(query)
+            return result.scalars().all()
+    else:
+        return await queries.db_select_by_id(model, id)
 
 
 @groups_router.get('/delete')

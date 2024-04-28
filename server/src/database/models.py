@@ -18,6 +18,7 @@ class Group(Base):
     __tablename__ = 'group'
     id: Mapped[int_PK]
     direction_id: Mapped[Optional[int]] = mapped_column(ForeignKey('direction.id', ondelete="CASCADE"))
+    file_upload: Mapped[Optional[str]]
 
 
 class Flow(Base):
@@ -74,6 +75,7 @@ class Schedule(Base):
     teacher_id: Mapped[int] = mapped_column(ForeignKey('teacher.id', ondelete="SET NULL"))
     discipline_id: Mapped[int] = mapped_column(ForeignKey('discipline.id', ondelete="SET NULL"))
     flow_id: Mapped[Optional[int]] = mapped_column(ForeignKey('flow.id', ondelete="SET NULL"))
+    change_id: Mapped[int] = mapped_column(ForeignKey('change.id'))
 
 
 class User(Base):
@@ -84,6 +86,14 @@ class User(Base):
     lastname: Mapped[str]
     firstname: Mapped[str]
     surname: Mapped[Optional[str]]
+
+
+class Change(Base):
+    __tablename__ = 'change'
+    id: Mapped[int_PK]
+    substitute_teacher_id: Mapped[int] = mapped_column(ForeignKey('teacher.id'))
+    discipline_id: Mapped[int] = mapped_column(ForeignKey('discipline.id'))
+    changed_teacher_id: Mapped[int] = mapped_column(ForeignKey('teacher.id'))
 
 
 # class Organization(Base):

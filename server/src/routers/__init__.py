@@ -22,11 +22,12 @@ routers = (
     directions_router,
     disciplines_router,
     flows_router,
-    organization_router,
+    groups_router,
     schedule_router,
-    search_schedule_router,
     teachers_router,
-
+    search_schedule_router,
+    users_router,
+    organization_router
 )
 
 

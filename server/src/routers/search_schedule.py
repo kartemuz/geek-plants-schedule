@@ -16,7 +16,7 @@ async def search_group(name: int):
     async with session_factory() as session:
         gr = aliased(models.Group)
         drc = aliased(models.Direction)
-        query = select(gr.id, drc.name, gr.direction_id).join(
+        query = select(gr.id, drc.name, gr.direction_id, drc.type).join(
             drc, gr.direction_id == drc.id,
             ).filter(cast(gr.id, String).like(f'%{name}%'))
 

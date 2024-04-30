@@ -34,9 +34,11 @@ role_router = APIRouter(
 
 
 @users_router.get('/get')
-async def users_get(login: str):
+async def users_get(login: Optional[str] = None):
     async with session_factory() as session:
-        query = select(model).where(model.login == login)
+        query = select(model)
+        if login is not None:
+            query.where(model.login == login)
         result = await session.execute(query)
     return result.scalars().all()
 

@@ -77,6 +77,7 @@ class Schedule(Base):
     flow_id: Mapped[Optional[int]] = mapped_column(ForeignKey('flow.id', ondelete="SET NULL"))
     change_id: Mapped[int] = mapped_column(ForeignKey('change.id'))
     list_id: Mapped[int]
+    date: Mapped[datetime.date]
 
 
 class User(Base):

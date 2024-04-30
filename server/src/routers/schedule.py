@@ -25,6 +25,9 @@ def get_cur_str_date():
     return (today - timedelta(days=today.weekday())).date().strftime(DATE_FORMAT)
 
 
+a = timedelta(seconds=32)
+
+
 @schedule_router.get('/get')
 async def get(id: Optional[int] = None, group_id: Optional[int] = None,
               start_of_week: Optional[str] = get_cur_str_date()):
@@ -46,8 +49,9 @@ async def get(id: Optional[int] = None, group_id: Optional[int] = None,
         sch.type,
         sch.discipline_id,
         sch.flow_id,
-        sql.label('time_start', sch.time_start / 3600),
-        sql.label('time_end', sch.time_end / 3600),
+        sch.date,
+        sql.label('time_start', sch.time_start),
+        sql.label('time_end', sch.time_end),
         sch.change_id,
 
         tch.lastname,

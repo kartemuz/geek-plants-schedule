@@ -41,13 +41,13 @@ async def get(id: Optional[int] = None, group_id: Optional[int] = None,
     drc = aliased(models.Direction)
     query = select(
         sch.id,
-        sch.date,
         sch.room,
         sch.teacher_id,
         sch.type,
         sch.discipline_id,
         sch.flow_id,
-        sql.label('time', sch.time / 3600),
+        sql.label('time_start', sch.time_start / 3600),
+        sql.label('time_end', sch.time_end / 3600),
         sch.change_id,
 
         tch.lastname,

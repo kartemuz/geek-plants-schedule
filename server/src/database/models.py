@@ -68,14 +68,15 @@ class Discipline(Base):
 class Schedule(Base):
     __tablename__ = 'schedule'
     id: Mapped[int_PK]
-    date: Mapped[datetime.date]
-    time: Mapped[datetime.time]
+    time_start: Mapped[datetime.time]
+    time_end: Mapped[datetime.time]
     room: Mapped[str]
     type: Mapped[Optional[str]]
     teacher_id: Mapped[int] = mapped_column(ForeignKey('teacher.id', ondelete="SET NULL"))
     discipline_id: Mapped[int] = mapped_column(ForeignKey('discipline.id', ondelete="SET NULL"))
     flow_id: Mapped[Optional[int]] = mapped_column(ForeignKey('flow.id', ondelete="SET NULL"))
     change_id: Mapped[int] = mapped_column(ForeignKey('change.id'))
+    list_id: Mapped[int]
 
 
 class User(Base):
@@ -96,5 +97,16 @@ class Change(Base):
     changed_teacher_id: Mapped[int] = mapped_column(ForeignKey('teacher.id'))
 
 
-# class Organization(Base):
-#     __tablename__ = 'organization'
+class ScheduleList(Base):
+    __tablename__ = 'schedule_list'
+    id: Mapped[int_PK]
+    title: Mapped[str]
+    group_id: Mapped[Optional[int]] = mapped_column(ForeignKey('group.id'))
+    archive: Mapped[Optional[bool]]
+
+
+class Options(Base):
+    __tablename__ = 'options'
+    id: Mapped[int_PK]
+    title: Mapped[str]
+    code: Mapped[str]

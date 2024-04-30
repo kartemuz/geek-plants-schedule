@@ -81,8 +81,8 @@ class Schedule(Base):
 
 class User(Base):
     __tablename__ = 'user'
-    login: Mapped[int_PK]
-    user_type: Mapped[int]
+    login: Mapped[str] = mapped_column(primary_key=True)
+    user_role_id: Mapped[int]
     password: Mapped[str]
     lastname: Mapped[str]
     firstname: Mapped[str]
@@ -110,3 +110,15 @@ class Options(Base):
     id: Mapped[int_PK]
     title: Mapped[str]
     code: Mapped[str]
+
+
+class UsersRole(Base):
+    __tablename__ = 'users_role'
+    id: Mapped[int_PK]
+    title: Mapped[str]
+
+
+class UserOpportunity(Base):
+    __tablename__ = 'user_opportunity'
+    user_role_id: Mapped[int] = mapped_column(ForeignKey('users_role.id'), primary_key=True)
+    option_id: Mapped[int] = mapped_column(ForeignKey('options.id'), primary_key=True)

@@ -15,7 +15,7 @@ async def db_select_by_id(model, id: int or None = None):
     return result
 
 
-async def db_delete_by_id(model, id: int):
+async def db_delete_by_id(model, id):
     async with session_factory() as session:
         x = await session.get(model, id)
         await session.delete(x)
@@ -31,6 +31,6 @@ async def db_insert(model, **kwargs):
 
 async def db_update(model, **kwargs):
     async with session_factory() as session:
-        query = update(model).where(model.id == kwargs.get('id')).values(**kwargs)
+        query = update(model).where(model.login == kwargs.get('id')).values(**kwargs)
         await session.execute(query)
         await session.commit()

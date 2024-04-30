@@ -52,8 +52,8 @@ class Schedule(BaseModel):
 
 
 class User(BaseModel):
-    login: int
-    user_type: int
+    login: str
+    user_role_id: int
     password: str
     lastname: str
     firstname: str

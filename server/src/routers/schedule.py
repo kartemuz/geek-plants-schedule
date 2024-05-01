@@ -36,6 +36,7 @@ async def get(id: Optional[int] = None, group_id: Optional[int] = None, teacher_
         selectinload(Schedule.teacher),
         selectinload(Schedule.change).selectinload(Change.changed_teacher),
         selectinload(Schedule.schedule_list),
+        selectinload(Schedule.discipline)
     )
 
     async with (session_factory() as session):

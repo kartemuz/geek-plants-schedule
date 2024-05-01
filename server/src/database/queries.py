@@ -31,6 +31,6 @@ async def db_insert(model, **kwargs):
 
 async def db_update(model, **kwargs):
     async with session_factory() as session:
-        query = update(model).where(model.login == kwargs.get('id')).values(**kwargs)
+        query = update(model).where(model.id == kwargs.get('id')).values(**kwargs)
         await session.execute(query)
         await session.commit()

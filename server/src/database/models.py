@@ -93,16 +93,6 @@ class Schedule(Base):
     schedule_list: Mapped['ScheduleList'] = relationship()
 
 
-class User(Base):
-    __tablename__ = 'user'
-    login: Mapped[str] = mapped_column(primary_key=True)
-    user_role_id: Mapped[int]
-    password: Mapped[str]
-    lastname: Mapped[str]
-    firstname: Mapped[str]
-    surname: Mapped[Optional[str]]
-
-
 class Change(Base):
     __tablename__ = 'change'
     id: Mapped[int_PK]
@@ -121,6 +111,18 @@ class ScheduleList(Base):
     archive: Mapped[Optional[bool]]
 
 
+class User(Base):
+    __tablename__ = 'user'
+    login: Mapped[str] = mapped_column(primary_key=True)
+    user_role_id: Mapped[int] = mapped_column(ForeignKey('users_role.id'))
+    password: Mapped[str]
+    lastname: Mapped[str]
+    firstname: Mapped[str]
+    surname: Mapped[Optional[str]]
+
+    user_role: Mapped['UsersRole'] = relationship()
+
+
 class Options(Base):
     __tablename__ = 'options'
     id: Mapped[int_PK]
@@ -133,8 +135,22 @@ class UsersRole(Base):
     id: Mapped[int_PK]
     title: Mapped[str]
 
+    opportunity: Mapped[List['UserOpportunity']] = relationship()
+
 
 class UserOpportunity(Base):
     __tablename__ = 'user_opportunity'
     user_role_id: Mapped[int] = mapped_column(ForeignKey('users_role.id'), primary_key=True)
     option_id: Mapped[int] = mapped_column(ForeignKey('options.id'), primary_key=True)
+    options: Mapped['Options'] = relationship()
+    role: Mapped['UsersRole'] = relationship()
+
+
+class Org(Base):
+    __tablename__ = 'org'
+    id: Mapped[int_PK]
+    address: Mapped[str]
+    phone: Mapped[str]
+    email: Mapped[Optional[str]]
+    vk: Mapped[Optional[str]]
+    telegram: Mapped[Optional[str]]

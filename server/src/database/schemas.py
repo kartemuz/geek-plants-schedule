@@ -74,3 +74,12 @@ class UserOpportunity(BaseModel):
 class Options(BaseModel):
     id: int
     title: str
+
+
+class Org(BaseModel):
+    id: int
+    address: str
+    phone: str
+    email: Optional[str] = None
+    vk: Optional[str] = None
+    telegram: Optional[str] = None

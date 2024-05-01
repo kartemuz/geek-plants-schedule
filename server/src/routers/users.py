@@ -1,8 +1,8 @@
 from fastapi import APIRouter
 from server.src.database import models, schemas, queries, session_factory
 from typing import Optional
-from sqlalchemy import select
-from sqlalchemy.orm import aliased
+from sqlalchemy import select, update
+from sqlalchemy.orm import aliased, selectinload
 
 
 users_router = APIRouter(
@@ -38,14 +38,17 @@ async def users_get(login: Optional[str] = None):
     async with session_factory() as session:
         query = select(model)
         if login is not None:
-            query.where(model.login == login)
+            query = query.where(model.login == login)
         result = await session.execute(query)
     return result.scalars().all()
 
 
 @users_router.post('/edit')
 async def edit_user(data: schema):
-    await queries.db_update(model, **data.dict())
+    async with session_factory() as session:
+        query = update(model).where(model.login == data.login).values(data.dict())
+        await session.execute(query)
+        await session.commit()
 
 
 @users_router.post('/new')
@@ -71,26 +74,17 @@ async def get_options(id: Optional[int] = None):
 
 @role_router.get('/get')
 async def get_role(id: Optional[int] = None):
-    rl = aliased(models.UsersRole)
-    opportunity = aliased(models.UserOpportunity)
-    opt = aliased(models.Options)
     async with session_factory() as session:
 
         query = select(
-            rl.id.label('role_id'),
-            rl.title.label('role_title'),
-            opt.id.label('option_id'),
-            opt.title.label('option_title'),
-            opt.code
-        ).join(
-            opportunity, opportunity.user_role_id == rl.id
-        ).join(
-            opt, opt.id == opportunity.option_id
+            models.UsersRole
+        ).options(
+            selectinload(models.UsersRole.opportunity).selectinload(models.UserOpportunity.options)
         )
         if id is not None:
-           query = query.where(rl.id == id)
+            query = query.where(models.UsersRole.id == id)
         query_res = await session.execute(query)
-        query_res = query_res.mappings().all()
+        query_res = query_res.scalars().all()
 
     return query_res
 

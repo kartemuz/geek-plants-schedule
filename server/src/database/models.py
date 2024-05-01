@@ -155,6 +155,8 @@ class Org(Base):
     email: Mapped[Optional[str]]
     vk: Mapped[Optional[str]]
     telegram: Mapped[Optional[str]]
+    full_name: Mapped[Optional[str]]
+    abbr_name: Mapped[Optional[str]]
 
 
 class UserSession(Base):

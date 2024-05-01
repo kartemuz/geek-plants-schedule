@@ -31,19 +31,21 @@ role_router = APIRouter(
 
 @users_router.post('/auth')
 async def auth(data: schemas.AuthUser):
-    query = select(models.User).where(data.login == models.User.login)
     async with session_factory() as session:
+        query = select(models.User).where(data.login == models.User.login)
         resp = await session.execute(query)
         resp = resp.scalars().first()
-
+        print(resp)
     try:
         if resp.password == data.password:
-            tkn = jwt.encode(data.dict()['password'], 'secret', algorithm='HS256')
+            tkn = jwt.encode(data.dict(), 'secret', algorithm='HS256')
             md = models.UserSession(user_id=resp.id, token=tkn)
             session.add(md)
             await session.commit()
 
             return tkn
+        else:
+            return 'message_notFoundUser'
     except AttributeError:
         return 'message_notFoundUser'
 
@@ -69,7 +71,7 @@ async def users_get(auth_token: str = Header()):
 
 
 @users_router.post('/delete')
-async def users_get(auth_token: str = Header()):
+async def users_delete(auth_token: str = Header()):
     query = select(models.UserSession).where(models.UserSession.token == auth_token)
     async with session_factory() as session:
         try:

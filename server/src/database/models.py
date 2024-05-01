@@ -5,9 +5,9 @@ import datetime
 import enum
 
 
-from typing import Annotated, Optional
+from typing import Annotated, Optional, List
 from sqlalchemy import ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from server.src.database import Base
 
 
@@ -20,17 +20,24 @@ class Group(Base):
     direction_id: Mapped[Optional[int]] = mapped_column(ForeignKey('direction.id', ondelete="CASCADE"))
     file_upload: Mapped[Optional[str]]
 
+    direction: Mapped['Direction'] = relationship()
+
 
 class Flow(Base):
     __tablename__ = 'flow'
     id: Mapped[int_PK]
     discipline_id: Mapped[int] = mapped_column(ForeignKey('discipline.id', ondelete="CASCADE"))
 
+    flow_groups: Mapped[List['FlowGroup']] = relationship()
+
 
 class FlowGroup(Base):
     __tablename__ = 'flow_group'
     flow_id: Mapped[int] = mapped_column(ForeignKey('flow.id', ondelete="CASCADE"), primary_key=True)
     group_id: Mapped[int] = mapped_column(ForeignKey('group.id', ondelete="CASCADE"), primary_key=True)
+
+    flow: Mapped['Flow'] = relationship()
+    group: Mapped['Group'] = relationship()
 
 
 class Teacher(Base):
@@ -76,8 +83,14 @@ class Schedule(Base):
     discipline_id: Mapped[int] = mapped_column(ForeignKey('discipline.id', ondelete="SET NULL"))
     flow_id: Mapped[Optional[int]] = mapped_column(ForeignKey('flow.id', ondelete="SET NULL"))
     change_id: Mapped[int] = mapped_column(ForeignKey('change.id'))
-    list_id: Mapped[int]
+    list_id: Mapped[int] = mapped_column(ForeignKey('schedule_list.id'))
     date: Mapped[datetime.date]
+
+    teacher: Mapped['Teacher'] = relationship()
+    change: Mapped['Change'] = relationship()
+    discipline: Mapped['Discipline'] = relationship()
+    flow: Mapped['Flow'] = relationship()
+    schedule_list: Mapped['ScheduleList'] = relationship()
 
 
 class User(Base):
@@ -96,6 +109,8 @@ class Change(Base):
     substitute_teacher_id: Mapped[int] = mapped_column(ForeignKey('teacher.id'))
     discipline_id: Mapped[int] = mapped_column(ForeignKey('discipline.id'))
     changed_teacher_id: Mapped[int] = mapped_column(ForeignKey('teacher.id'))
+
+    changed_teacher: Mapped['Teacher'] = relationship(primaryjoin='Teacher.id == Change.changed_teacher_id')
 
 
 class ScheduleList(Base):

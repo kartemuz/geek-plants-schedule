@@ -1,8 +1,9 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Header
 from server.src.database import models, schemas, queries, session_factory
 from typing import Optional
-from sqlalchemy import select, update
+from sqlalchemy import select, update, insert, func
 from sqlalchemy.orm import aliased, selectinload
+import jwt
 
 
 users_router = APIRouter(
@@ -26,21 +27,68 @@ role_router = APIRouter(
 # @users_router.post('/register')
 # async def register(data: schema):
 #     pass
-#
-#
-# @users_router.post('/auth')
-# async def auth(data: schema):
-#     pass
 
 
-@users_router.get('/get')
-async def users_get(login: Optional[str] = None):
+@users_router.post('/auth')
+async def auth(data: schemas.AuthUser):
+    query = select(models.User).where(data.login == models.User.login)
     async with session_factory() as session:
-        query = select(model)
-        if login is not None:
-            query = query.where(model.login == login)
+        resp = await session.execute(query)
+        resp = resp.scalars().first()
+
+    try:
+        if resp.password == data.password:
+            tkn = jwt.encode(data.dict()['password'], 'secret', algorithm='HS256')
+            md = models.UserSession(user_id=resp.id, token=tkn)
+            session.add(md)
+            await session.commit()
+
+            return tkn
+    except AttributeError:
+        return 'message_notFoundUser'
+
+
+@users_router.post('/get')
+async def users_get(auth_token: str = Header()):
+    query = select(models.UserSession).where(auth_token == models.UserSession.token)
+    async with session_factory() as session:
+        resp = await session.execute(query)
+        resp = resp.scalars().first()
+
+    if resp:
+        query = select(models.User).options(
+            selectinload(models.User.user_role).selectinload(models.UsersRole.opportunity).selectinload(
+                models.UserOpportunity.options
+            )
+        )
         result = await session.execute(query)
-    return result.scalars().all()
+        result = result.scalars().first()
+        return result
+    else:
+        return 'Error'
+
+
+@users_router.post('/delete')
+async def users_get(auth_token: str = Header()):
+    query = select(models.UserSession).where(models.UserSession.token == auth_token)
+    async with session_factory() as session:
+        try:
+            resp = await session.execute(query)
+            resp = resp.scalars().first()
+            session.delete(resp)
+            return 'OK'
+        except Exception:
+            return 'Error'
+
+
+# @users_router.get('/get')
+# async def users_get(login: Optional[str] = None):
+#     async with session_factory() as session:
+#         query = select(model)
+#         if login is not None:
+#             query = query.where(model.login == login)
+#         result = await session.execute(query)
+#     return result.scalars().all()
 
 
 @users_router.post('/edit')

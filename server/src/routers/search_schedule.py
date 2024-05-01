@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from server.src.database import models
 from server.src.database import session_factory
-from sqlalchemy import select, cast, String
+from sqlalchemy import select, cast, String, func
 from sqlalchemy.orm import aliased
 
 

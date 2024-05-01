@@ -113,7 +113,8 @@ class ScheduleList(Base):
 
 class User(Base):
     __tablename__ = 'user'
-    login: Mapped[str] = mapped_column(primary_key=True)
+    id: Mapped[int_PK]
+    login: Mapped[str]
     user_role_id: Mapped[int] = mapped_column(ForeignKey('users_role.id'))
     password: Mapped[str]
     lastname: Mapped[str]
@@ -154,3 +155,10 @@ class Org(Base):
     email: Mapped[Optional[str]]
     vk: Mapped[Optional[str]]
     telegram: Mapped[Optional[str]]
+
+
+class UserSession(Base):
+    __tablename__ = 'user_sessions'
+    id: Mapped[int_PK]
+    token: Mapped[str]
+    user_id: Mapped[int] = mapped_column(ForeignKey('user.id'))

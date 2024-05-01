@@ -4,9 +4,8 @@ from server.src.database import models
 from server.src.database import queries
 from typing import Optional, List, Final
 from server.src.database import schemas, session_factory
-from sqlalchemy import select, func
 from sqlalchemy.orm import aliased
-from sqlalchemy import sql
+from sqlalchemy import sql, func, and_, select
 
 
 schedule_router = APIRouter(
@@ -29,7 +28,7 @@ a = timedelta(seconds=32)
 
 
 @schedule_router.get('/get')
-async def get(id: Optional[int] = None, group_id: Optional[int] = None,
+async def get(id: Optional[int] = None, group_id: Optional[int] = None, teacher_id: Optional[int] = None,
               start_of_week: Optional[str] = get_cur_str_date()):
     # Определение начала и конца текущей недели
     start_of_week = datetime.strptime(start_of_week, DATE_FORMAT)
@@ -54,13 +53,14 @@ async def get(id: Optional[int] = None, group_id: Optional[int] = None,
         sql.label('time_end', sch.time_end),
         sch.change_id,
 
-        tch.lastname,
-        tch.firstname,
         tch.surname,
+        tch.firstname,
+        tch.lastname,
+
         func.concat(
-            tch.lastname, ' ',
+            tch.surname, ' ',
             tch.firstname, ' ',
-            tch.surname,
+            tch.lastname,
         ).label('fullname'),
         tch.position,
         tch.teaching_profile,
@@ -69,7 +69,19 @@ async def get(id: Optional[int] = None, group_id: Optional[int] = None,
         dsc.lecture_hours,
         dsc.practice_hours,
 
-        gr.id.label('group_id')
+        gr.id.label('group_id'),
+
+        sql.label('change_surname', 'surname'),
+        sql.label('change_firstname', 'firstname'),
+        sql.label('change_lastname', 'lastname'),
+        func.concat(
+            tch.surname, ' ',
+            tch.firstname, ' ',
+            tch.lastname,
+        ).label('change_fullname'),
+        tch.position.label('change_position'),
+        tch.teaching_profile.label('change_teaching_profile')
+
     ).join(
         tch, sch.teacher_id == tch.id
     ).join(
@@ -88,13 +100,14 @@ async def get(id: Optional[int] = None, group_id: Optional[int] = None,
 
     async with (session_factory() as session):
         if group_id is not None:
-            result = await session.execute(
-                query.where(gr.id == group_id and sch.date.between(start_of_week, end_of_week))
-            )
+            query = query.where(and_(gr.id == group_id, sch.date.between(start_of_week, end_of_week)))
+        elif teacher_id is not None:
+            query = query.where(and_(sch.teacher_id == teacher_id, sch.date.between(start_of_week, end_of_week)))
         elif id is not None:
-            result = await session.execute(query.where(sch.id == id))
-        else:
-            result = await session.execute(query)
+            query = query.where(and_(sch.id == id, sch.date.between(start_of_week, end_of_week)))
+
+        query = query.order_by(sch.date, sch.time_start)
+        result = await session.execute(query)
     return result.mappings().all()
 
 

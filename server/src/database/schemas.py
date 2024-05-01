@@ -83,6 +83,8 @@ class Org(BaseModel):
     email: Optional[str] = None
     vk: Optional[str] = None
     telegram: Optional[str] = None
+    full_name: Optional[str] = None
+    abbr_name: Optional[str] = None
 
 
 class AuthUser(BaseModel):

@@ -1,7 +1,17 @@
-import React from "react";
+import { React, useState, useEffect } from 'react';
+import axios from 'axios';
+import { apiServer } from '../../backend/Config.jsx';
+import {
+  Input,
+  Button,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter
+} from "@nextui-org/react";
+import { useToast } from '../../../pages/context/ToastContext.jsx';
 
 import {Link} from "@nextui-org/react";
-
 import {AvatarIcon} from '../../../assets/icons/AvatarIcon.jsx'
 import {ScheduleIcon} from '../../../assets/icons/ScheduleIcon.jsx'
 import {GroupIcon} from '../../../assets/icons/GroupIcon.jsx'
@@ -10,68 +20,97 @@ import {TeacherIcon} from '../../../assets/icons/TeacherIcon.jsx'
 import {DisciplineIcon} from '../../../assets/icons/DisciplineIcon.jsx'
 import {DirectionIcon} from '../../../assets/icons/DirectionIcon.jsx'
 import {UserIcon} from '../../../assets/icons/UserIcon.jsx'
-import {OrganizationIcon} from '../../../assets/icons/OrganizationIcon.jsx'
+import {HouseIcon} from '../../../assets/icons/HouseIcon.jsx'
 import {LogoutIcon} from '../../../assets/icons/LogoutIcon.jsx'
 import './sidebar.css';
 
 function Sidebar(){
+  const toast = useToast();
 
     const path = window.location.pathname;
     const segments = path.split('/');
-    const currentURL = '/' + segments[1] + '/';
+    const currentURL = '/' + segments[1] + '/' + segments[2] + '/';
 
   let Links = [
     {
       name: 'Расписание', 
       icon: ScheduleIcon, 
-      href: "/schedules/" 
+      href: "/admin/schedules/",
+      code_opportunity: "schedules"
     },
     {
       name: 'Группы', 
       icon: GroupIcon, 
-      href: "/groups/" 
+      href: "/admin/groups/",
+      code_opportunity: "groups"
     },
     {
       name: 'Потоки', 
       icon: FlowIcon, 
-      href: "/flows/" 
+      href: "/admin/flows/",
+      code_opportunity: "flows"
     },
     {
       name: 'Преподаватели', 
       icon: TeacherIcon, 
-      href: "/teachers/" 
+      href: "/admin/teachers/",
+      code_opportunity: "teachers"
     },
     {
       name: 'Дисциплины', 
       icon: DisciplineIcon, 
-      href: "/disciplines/" 
+      href: "/admin/disciplines/",
+      code_opportunity: "disciplines"
     },
     {
       name: 'Направления подготовки', 
       icon: DirectionIcon, 
-      href: "/directions/" 
+      href: "/admin/directions/",
+      code_opportunity: "directions" 
     },
     {
       name: 'Пользователи', 
       icon: UserIcon, 
-      href: "/users/" 
+      href: "/admin/users/",
+      code_opportunity: "users" 
     },
     {
       name: 'Информация об организации', 
-      icon: OrganizationIcon, 
-      href: "/organization/" 
+      icon: HouseIcon, 
+      href: "/admin/organization/",
+      code_opportunity: "organization" 
     },
   ];
 
+  const [userData, setUserData] = useState();
+
+useEffect(() => {
+  if(localStorage.getItem('jwtToken') != null){
+    const token = localStorage.getItem('jwtToken');
+    axios.post(`${apiServer}/users/get`, null, {
+  headers: {
+    'auth-token': localStorage.getItem('jwtToken')
+  }
+  })
+.then(response => {
+  toast.success(response.data);
+  setUserData(response.data);
+})
+.catch(error => {
+  // Обработка ошибки
+});
+  }
+},[]);
+
   return (
-    <div className="sidebar flex flex-col flex-wrap justify-between flex-wrap items-baseline overflow-hidden relative group fixed z-[20] top-0 left-0 right-0 h-dvh w-[80px] px-[15px] py-[50px] bg-neutral-200 rounded-r-[20px] hover:w-[420px] hover:shadow-lg hover:shadow-lg:shadow-stone-700 transition-all duration-30">
+    <div className="sidebar flex flex-col flex-wrap justify-between flex-wrap items-baseline overflow-hidden relative group fixed z-[20] top-0 left-0 right-0 h-dvh w-[80px] px-[15px] py-[50px] bg-zinc-200 rounded-r-[20px] hover:w-[420px] hover:shadow-lg hover:shadow-lg:shadow-stone-700 transition-all duration-30">
         <div className="header float-left inline-flex justify-center items-center">
           <div className="logo float-left w-[50px] h-[50px] rounded-full bg-neutral-300 flex justify-center items-center" >
             <AvatarIcon width="25px" height="25px" className="text-stone-500"/>
           </div>
           <div className="user ml-[15px] whitespace-nowrap overflow-hiddden float-left text-small">
-            <div className="font-medium text-[20px]">Иванов Иван Иванович</div>
-            <div className="text-[16px] text-stone-500 ">Администратор</div>
+            <div className="font-medium text-[20px]">{userData != null && userData.lastname + " " + userData.firstname + " " + userData.surname }</div>
+            <div className="text-[16px] text-stone-500 ">{userData != null && userData.user_role.title }</div>
           </div>
         </div>
         <div className="menu">

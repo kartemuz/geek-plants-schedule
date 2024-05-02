@@ -3,7 +3,8 @@ from server.src.database import models
 from server.src.database import queries
 from typing import Optional, List
 from server.src.database import schemas
-from openpyxl import load_workbook
+from openpyxl import Workbook
+from fastapi.responses import FileResponse
 
 
 directions_router = APIRouter(
@@ -12,7 +13,6 @@ directions_router = APIRouter(
 )
 model = models.Direction
 schema = schemas.Direction
-# workbook = load_workbook('static/direction.xlsx')
 
 
 @directions_router.get('/get')
@@ -35,8 +35,16 @@ async def edit(data: schema):
     await queries.db_update(model, **data.dict())
 
 
-# @directions_router.get('/import')
-# async def import_():
-#     data = await queries.db_select_by_id(model)
-#     for i in data:
-#         print(i.__dict__)
+@directions_router.get('/export')
+async def export_():
+    path = 'server/static/export.xlsx'
+    data: List[model] = await queries.db_select_by_id(model)
+    wb = Workbook()
+    ws = wb.active
+    ws.append(['Название', 'Тип', 'Практика'])
+    for i in data:
+        i.type: models.dir_type
+        ws.append([i.name, i.type.value, i.practice])
+    wb.save(path)
+    wb.close()
+    return FileResponse(path=path, filename='directions_export.xlsx', media_type='multipart/form-data')

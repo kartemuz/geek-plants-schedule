@@ -3,17 +3,16 @@ import axios from 'axios';
 import { apiServer } from '../components/backend/Config';
 import {
   Input,
-  Button,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter
+  Button
 } from "@nextui-org/react";
 import { useToast } from "../pages/context/ToastContext"
 import md5 from 'md5';
 
 function LoginPage(){
 
+    if(localStorage.getItem('jwtToken') != null){
+        document.location.href = "/admin/";
+    }
 
     document.title = 'Авторизация';
     const toast = useToast();
@@ -24,7 +23,6 @@ function LoginPage(){
       });
 
     function onChangeInput(e){
-        console.log(e.target.value);
         const newFormAuth = {...formAuth};
         if(e.target.id == "login"){
             newFormAuth[e.target.id] = e.target.value;
@@ -42,7 +40,23 @@ function LoginPage(){
         .then(response => {
             if(response.data != 'message_notFoundUser'){
                 localStorage.setItem('jwtToken', response.data);
-                document.location.href="/admin/";
+
+                axios.post(`${apiServer}/users/get/`, null, {
+                    headers: {
+                        'auth-token': localStorage.getItem('jwtToken')
+                    }
+                })
+                .then(responseData => {
+                    if(responseData.data != 'Error'){
+                        localStorage.setItem('userData', JSON.stringify(responseData.data));
+                        document.location.href="/admin/";
+                    }else{
+                        toast.warning("Неверный Token");
+                    }
+                })
+                .catch(error => {
+                    toast.warning("Не удалось получить сведения о пользователе");
+                });
             }else{
                 toast.warning("Неверный логин и/или пароль");
             }
@@ -50,6 +64,11 @@ function LoginPage(){
         .catch(error => {
             toast.warning("Ошибка запроса авторизации");
         });
+
+        if(localStorage.getItem('jwtToken') != null){
+            
+    
+        }
 
     }
 
@@ -63,7 +82,7 @@ function LoginPage(){
                 </div>      
                 <div className="body flex flex-col gap-[10px]">
                 <Input type="text" isRequired variant='flat' label="Логин" id="login" className="max-w-full" onChange={(e) => onChangeInput(e)}/>
-                <Input type="text" isRequired variant='flat' label="Пароль" id="password" className="max-w-full" onChange={(e) => onChangeInput(e)}/>
+                <Input type="password" isRequired variant='flat' label="Пароль" id="password" className="max-w-full" onChange={(e) => onChangeInput(e)}/>
                 <Button className='mt-[10px]' onClick={()=>handleAuth()} color="primary">Войти</Button>
 
                 </div>

@@ -1,4 +1,6 @@
 import { React, useState } from 'react';
+import { useContext } from "react";
+import isLoadingContext from '../pages/context/isLoading';
 import axios from 'axios';
 import { apiServer } from '../components/backend/Config';
 import {
@@ -11,7 +13,8 @@ import {
 } from "@nextui-org/react";
 import { useToast } from "../pages/context/ToastContext"
 
-function AddTeacherForm() {
+function AddTeacherForm({handleFunction}) {
+  const statusLoading = useContext(isLoadingContext);
 
   const toast = useToast();
   const [formData, setFormData] = useState({
@@ -43,7 +46,9 @@ function AddTeacherForm() {
         surname: capitalizeLetter(formData.surname),
         teaching_profile: formData.teaching_profile
        });
-      return true; // Успешный запрос
+       handleFunction();
+      return true;
+
     } catch (error) {
       toast.warning("Ошибка при попытке добавления преподавателя")
       console.error('Error fetching data:', error);
@@ -71,8 +76,8 @@ function AddTeacherForm() {
                 const isSuccess = await sendDataForm();
                 if (isSuccess) {
                   toast.success(`Преподаватель ${formData.lastname + " " + formData.firstname + " " + formData.surname} успешно добавлен`)
-
                   onClose();
+
                 }
             }}>
               Добавить

@@ -10,7 +10,7 @@ import {
   ModalFooter
 } from "@nextui-org/react";
 
-function DeleteTeacherForm({id, fio}) {
+function DeleteTeacherForm({id, fio, handleFunction}) {
     const [formData, setFormData] = useState({
         lastname: "",
         firstname: "",
@@ -71,6 +71,7 @@ function DeleteTeacherForm({id, fio}) {
                         try {
                             const isSuccess = await deleteTeacher();
                             if (isSuccess) {
+                                handleFunction();
                                 onClose();
                             }
                         } catch (error) {

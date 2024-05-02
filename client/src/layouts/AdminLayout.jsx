@@ -1,8 +1,14 @@
-import React from "react";
+import {React, useEffect} from "react";
 import Sidebar from "../components/managment/Sidebar/Sidebar"
 import Favicon from "react-favicon"
-
+import { isAuthenticated } from "../components/auth";
+import { useNavigate } from "react-router-dom";
 export default function UserLayout({ children }) {
+
+  useEffect(() => {
+    isAuthenticated(); // Проверяем аутентификацию
+  }, []);
+
   return (
     
     <div className="h-dvh flex">

@@ -7,10 +7,10 @@ import {
   ModalContent,
   ModalHeader,
   ModalBody,
-  ModalFooter
+  ModalFooter,
+  useNavbar
 } from "@nextui-org/react";
 import { useToast } from '../../../pages/context/ToastContext.jsx';
-
 import {Link} from "@nextui-org/react";
 import {AvatarIcon} from '../../../assets/icons/AvatarIcon.jsx'
 import {ScheduleIcon} from '../../../assets/icons/ScheduleIcon.jsx'
@@ -23,6 +23,7 @@ import {UserIcon} from '../../../assets/icons/UserIcon.jsx'
 import {HouseIcon} from '../../../assets/icons/HouseIcon.jsx'
 import {LogoutIcon} from '../../../assets/icons/LogoutIcon.jsx'
 import './sidebar.css';
+import { useNavigate } from 'react-router-dom';
 
 function Sidebar(){
   const toast = useToast();
@@ -57,6 +58,12 @@ function Sidebar(){
       code_opportunity: "teachers"
     },
     {
+      name: 'Замены', 
+      icon: TeacherIcon, 
+      href: "/admin/changes/",
+      code_opportunity: "changes"
+    },
+    {
       name: 'Дисциплины', 
       icon: DisciplineIcon, 
       href: "/admin/disciplines/",
@@ -89,7 +96,7 @@ useEffect(() => {
     const token = localStorage.getItem('jwtToken');
     axios.post(`${apiServer}/users/get`, null, {
   headers: {
-    'auth-token': localStorage.getItem('jwtToken')
+    'auth-token': token
   }
   })
 .then(response => {
@@ -102,16 +109,30 @@ useEffect(() => {
   }
 },[]);
 
+function handleLogOut(){
+  axios.post(`${apiServer}/users/delete/`, null, {
+    headers: {
+      'auth-token': localStorage.getItem('jwtToken')
+    }
+  })
+  .then(response => {
+    localStorage.removeItem('jwtToken');
+    document.location.href = "/admin/login/";
+  });
+}
+
   return (
     <div className="sidebar flex flex-col flex-wrap justify-between flex-wrap items-baseline overflow-hidden relative group fixed z-[20] top-0 left-0 right-0 h-dvh w-[80px] px-[15px] py-[50px] bg-zinc-200 rounded-r-[20px] hover:w-[420px] hover:shadow-lg hover:shadow-lg:shadow-stone-700 transition-all duration-30">
         <div className="header float-left inline-flex justify-center items-center">
           <div className="logo float-left w-[50px] h-[50px] rounded-full bg-neutral-300 flex justify-center items-center" >
             <AvatarIcon width="25px" height="25px" className="text-stone-500"/>
           </div>
+          <Link href="/admin/profile/">
           <div className="user ml-[15px] whitespace-nowrap overflow-hiddden float-left text-small">
-            <div className="font-medium text-[20px]">{userData != null && userData.lastname + " " + userData.firstname + " " + userData.surname }</div>
+            <div className="font-medium text-[20px] text-black">{userData != null && userData.lastname + " " + userData.firstname + " " + userData.surname }</div>
             <div className="text-[16px] text-stone-500 ">{userData != null && userData.user_role.title }</div>
           </div>
+          </Link>
         </div>
         <div className="menu">
           <ul className="flex flex-col">
@@ -132,7 +153,7 @@ useEffect(() => {
           </ul>
         </div>
         <div className="footer_btn">
-          <Link className="items-center mx-[12px] font-sm text-black" href="/logout/" underline="none">
+          <Link onClick={()=> {handleLogOut()}} className="items-center mx-[12px] font-sm text-black" href="#" underline="none">
                 <LogoutIcon/>
                 <span className="ml-[28px] text-[20px] whitespace-nowrap">Выход из системы</span>
           </Link>

@@ -1,4 +1,4 @@
-import {React, useEffect, useState} from "react";
+import React, { useEffect } from "react";
 import {
   Table,
   TableHeader,
@@ -27,7 +27,7 @@ import {VerticalDotsIcon} from "./VerticalDotsIcon";
 import {SearchIcon} from "../assets/icons/SearchIcon";
 import {ChevronDownIcon} from "./ChevronDownIcon";
 import {ImportIcon} from "../assets/icons/ImportIcon";
-import {columns, statusOptions} from "./data";
+import {columns} from "./data/teachers";
 import {capitalize} from "./utils";
 import AddTeacherForm from '../modalForms/AddTeacherForm'
 import EditTeacherForm from '../modalForms/EditTeacherForm'
@@ -35,7 +35,7 @@ import DeleteTeacherForm from '../modalForms/DeleteTeacherForm'
 import {ExportWordIcon} from "../assets/icons/ExportWordIcon";
 import { useToast } from "../pages/context/ToastContext"
 import { apiServer } from "../components/backend/Config";
-
+import axios from "axios";
 
 const statusColorMap = {
   active: "success",
@@ -46,28 +46,13 @@ const statusColorMap = {
 function TeachersPage(){
 
   document.title = 'Преподаватели';
-  const [teachers, setTeachers] = useState([]);
+  const [teachers, setTeachers] = React.useState([]);
   const toast = useToast();
   const {isOpen, onOpen, onClose, onOpenChange} = useDisclosure();
   const [action, setAction] = React.useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [idTeacher, setIdTeacher] = useState(0);
-
-
-   useEffect(() => {
-    const fetchTeachers = async () => {
-      try {
-        const response = await axios.get(`${apiServer}/teachers/get`);
-        setTeachers(response.data);
-      } catch (error) {
-        console.error("Error fetching teachers:", error);
-      }
-    };
-
-    fetchTeachers();
-  }, []);
-
-
+  const [loadindData, setLoadingData] = React.useState(true);
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [idTeacher, setIdTeacher] = React.useState(0);
 
     function handleOpenModal(act){
       setAction(act);
@@ -78,33 +63,24 @@ function TeachersPage(){
     //   onClose();
     // };
   
-    function getForm() {
+    function getForm(fio="") {
       switch (action) {
         case 'add':
-          return <AddTeacherForm />;
+          return <AddTeacherForm handleFunction={() => {setIsLoading(true)}}/>;
         case 'edit':
-          return <EditTeacherForm id={idTeacher}/>;
+          return <EditTeacherForm handleFunction={() => {setIsLoading(true)}} id={idTeacher}/>;
         case 'delete':
-          return <DeleteTeacherForm id={idTeacher}/>;
+          return <DeleteTeacherForm handleFunction={() => {setIsLoading(true)}} id={idTeacher} fio={fio}/>;
         default:
           return null;
       }
     };
 
-
-  
-
-  const handleClick = () => {
-    toast.error('Ваше сообщение об ошибке');
-  };
-
-
-
     const [filterValue, setFilterValue] = React.useState("");
     const [selectedKeys, setSelectedKeys] = React.useState(new Set([]));
     const [visibleColumns, setVisibleColumns] = React.useState("all");
     const [statusFilter, setStatusFilter] = React.useState("all");
-    const [rowsPerPage, setRowsPerPage] = React.useState(teachers.length);
+    const [rowsPerPage, setRowsPerPage] = React.useState('');
     const [sortDescriptor, setSortDescriptor] = React.useState({
       column: "age",
       direction: "ascending",
@@ -123,6 +99,27 @@ function TeachersPage(){
     const pages = Math.ceil(teachers.length / rowsPerPage);
   
     const hasSearchFilter = Boolean(filterValue);
+
+    React.useEffect(() => {
+      if(isLoading){
+          const fetchTeachers = async () => {
+          await axios.get(`${apiServer}/teachers/get`).then((response) => {
+            setTeachers(response.data);
+            setIsLoading(false);
+            setPage(1);
+          });
+      };
+      
+      fetchTeachers();
+    }
+    }, [isLoading]);
+  
+    React.useEffect(()=>{
+      if(loadindData){
+        setIsLoading(true);
+  
+      }
+    },[loadindData])
   
     const headerColumns = React.useMemo(() => {
       if (visibleColumns === "all") return columns;
@@ -138,7 +135,7 @@ function TeachersPage(){
           user.lastname.toLowerCase().includes(filterValue.toLowerCase()),
         );
       }
-      if (statusFilter !== "all" && Array.from(statusFilter).length !== statusOptions.length) {
+      if (statusFilter !== "all") {
         filteredTeachers = filteredTeachers.filter((user) =>
           Array.from(statusFilter).includes(user.status),
         );
@@ -163,6 +160,7 @@ function TeachersPage(){
         return sortDescriptor.direction === "descending" ? -cmp : cmp;
       });
     }, [sortDescriptor, items]);
+
   
     const renderCell = React.useCallback((user, columnKey) => {
 
@@ -232,10 +230,16 @@ function TeachersPage(){
       }
       
     }, []);
+
+    useEffect(()=> {
+      if(rowsPerPage == ''){
+        setRowsPerPage(teachers.length);
+      }
+      setPage(1);
+    },[teachers])
   
     const onRowsPerPageChange = React.useCallback((e) => {
       setRowsPerPage(Number(e.target.value));
-      toast(e.target.value);
       setPage(1);
     }, []);
 
@@ -256,8 +260,6 @@ function TeachersPage(){
         <div className="flex flex-col gap-5">
           
           <div className="flex justify-between gap-3 items-end">
-          <button onClick={handleClick}>Показать уведомление об ошибке</button>
-
             <Input
               isClearable
               classNames={{
@@ -269,6 +271,7 @@ function TeachersPage(){
               startContent={<SearchIcon className="text-default-300" />}
               value={filterValue}
               variant="flat"
+              id="searchTeacherByFIO"
               onClear={() => setFilterValue("")}
               onValueChange={onSearchChange}
             />
@@ -319,20 +322,15 @@ function TeachersPage(){
           <div className="flex justify-between items-center">
             <label className="flex items-center text-default-400 text-small">
               Отображать записей на странице:
-              <Select onChange={onRowsPerPageChange} className="ml-[5px] w-[80px]" selectedKeys={"11"} aria-label="Выберите количество строк на странице">
-                <SelectItem key={"11"} value={11}>
-                11
-                </SelectItem>
-                <SelectItem key={"5"} value={5}>
-                  5
-                </SelectItem>
-                <SelectItem key={"10"} value={10}>
-                  10
-                </SelectItem>
-                <SelectItem key={"15"} value={15}>
-                  15
-                </SelectItem>
-              </Select>
+              <select
+              className="bg-transparent outline-none text-default-400 text-small"
+              onChange={onRowsPerPageChange}
+            >
+              <option value={teachers.length}>Все</option>
+              <option value="5">5</option>
+              <option value="10">10</option>
+              <option value="15">15</option>
+            </select>
 
               {showSpan && <Button isIconOnly color="d" onPress={()=>{alert(selectedKeys === "all" ? "all" : selectedKeys ); console.log(selectedKeys)}}><ExportWordIcon /></Button>}
 
@@ -438,12 +436,14 @@ function TeachersPage(){
           )}
         </TableHeader>
         <TableBody 
-        emptyContent={"Преподавателей не найдено"} 
-        items={sortedItems}
-        isLoading={isLoading}
-        loadingContent={<Spinner label="Загрузка..." />}>
+          emptyContent={"Преподавателей не найдено"} 
+          items={isLoading ? [] : sortedItems}
+          isLoading={isLoading}
+          loadingContent={<Spinner label="Загрузка..." />}
+  >
           {
           (item) => (
+
             <TableRow key={item.id}>
               {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
               

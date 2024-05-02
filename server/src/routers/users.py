@@ -24,18 +24,12 @@ role_router = APIRouter(
 )
 
 
-# @users_router.post('/register')
-# async def register(data: schema):
-#     pass
-
-
 @users_router.post('/auth')
 async def auth(data: schemas.AuthUser):
     async with session_factory() as session:
         query = select(models.User).where(data.login == models.User.login)
         resp = await session.execute(query)
         resp = resp.scalars().first()
-        print(resp)
     try:
         if resp.password == data.password:
             tkn = jwt.encode(data.dict(), 'secret', algorithm='HS256')
@@ -62,7 +56,7 @@ async def users_get(auth_token: str = Header()):
             selectinload(models.User.user_role).selectinload(models.UsersRole.opportunity).selectinload(
                 models.UserOpportunity.options
             )
-        )
+        ).where(resp.user_id == models.User.id)
         result = await session.execute(query)
         result = result.scalars().first()
         return result
@@ -82,7 +76,7 @@ async def users_delete(auth_token: str = Header()):
             return 'OK'
         except Exception:
             return 'Error'
-
+        
 
 # @users_router.get('/get')
 # async def users_get(login: Optional[str] = None):

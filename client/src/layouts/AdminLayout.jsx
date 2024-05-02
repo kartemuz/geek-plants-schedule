@@ -3,12 +3,16 @@ import Sidebar from "../components/managment/Sidebar/Sidebar"
 import Favicon from "react-favicon"
 import { isAuthenticated } from "../components/auth";
 import { useNavigate } from "react-router-dom";
-export default function UserLayout({ children }) {
+export default function AdminLayout({ children }) {
+  
+  const navigate = useNavigate();
 
   useEffect(() => {
-    isAuthenticated(); // Проверяем аутентификацию
-  }, []);
-
+      if(!isAuthenticated(navigate)){
+          navigate('/admin/login'); // Перенаправляем пользователя на страницу аутентификации
+      }
+  }, [navigate]);
+  
   return (
     
     <div className="h-dvh flex">

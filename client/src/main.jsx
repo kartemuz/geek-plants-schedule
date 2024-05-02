@@ -11,8 +11,8 @@ import DirectionsPage from "./pages/Directions"
 import TeachersPage from "./pages/Teachers"
 import UsersPage from "./pages/Users"
 import OrganizationPage from "./pages/Organization"
-import TestPage from "./pages/Test";
 import LoginPage from "./pages/Login";
+import ProfilePage from "./pages/ProfilePage";
 
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
@@ -43,9 +43,9 @@ const router = createBrowserRouter([
     element: <LoginPage/>,
   },
   {
-    path: "/test/",
+    path: "/admin/profile/",
     element: <AdminLayout>
-      <TestPage />
+      <ProfilePage />
       </AdminLayout>,
   },
   {

@@ -10,6 +10,8 @@ import {
   ModalFooter
 } from "@nextui-org/react";
 import { useToast } from "../pages/context/ToastContext"
+import { useNavigate  } from 'react-router-dom';
+import { isAuthenticated } from '../components/auth';
 
 function OrganizationPage(){
 

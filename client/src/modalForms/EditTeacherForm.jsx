@@ -9,9 +9,14 @@ import {
   ModalBody,
   ModalFooter
 } from "@nextui-org/react";
+import { useToast } from "../pages/context/ToastContext"
 
-function EditTeacherForm({id}) {
+
+function EditTeacherForm({id, handleFunction}) {
+
+    const toast = useToast();
     const [formData, setFormData] = useState({
+        id: "",
         lastname: "",
         firstname: "",
         surname: "",
@@ -19,18 +24,6 @@ function EditTeacherForm({id}) {
         teaching_profile: ""
     });
 
-        // try {
-        //   const url = apiServer + '/teachers/get?id=2';
-    
-        //   const response = axios.get(url);
-        //   console.log(response);
-        //   return true; // Успешный запрос
-        // } catch (error) {
-        //   alert('Ошибка запроса. Подробности в console');
-        //   console.error('Error fetching data:', error);
-        //   setIsSuccess(false);
-        //   return false; // Ошибка при запросе
-        // }
 
     function onChangeInput(e){
         const newFormData = {...formData}
@@ -44,7 +37,7 @@ function EditTeacherForm({id}) {
 
 
     useEffect(() => {
-        async function sendDataForm() {
+        async function getDataForm() {
             try {
                 const url = apiServer + '/teachers/get?id='+id;
                 const response = await axios.get(url);
@@ -58,11 +51,31 @@ function EditTeacherForm({id}) {
             }
         }
     
-        sendDataForm();
+        getDataForm();
       }, []);
 
-    
+    function sendDataForm(){
+        return axios.post(apiServer + '/teachers/edit', formData)
+        .then((response) => {
+            return true;
+        })
+        .catch((error) => {
+            console.error('Ошибка отправки данных:', error);
+            return false;
+        });
+    }
 
+
+    async function handleClick() {
+        try {
+            const success = await sendDataForm();
+            toast.success('Изменения успешно внесены');
+            return true;
+        } catch (error) {
+            toast.warning('Ошибка обновления данных');
+            return false;
+        }
+    }
     return (
         <ModalContent>
         {(onClose) => (
@@ -78,17 +91,7 @@ function EditTeacherForm({id}) {
                     <Input type="text" label="Профиль" id="teaching_profile" value={formData.teaching_profile} className="max-w-full"  onChange={(e) => onChangeInput(e)}/>
                 </ModalBody>
                 <ModalFooter>
-                    <Button color="primary" type="submit" onClick={async () => {
-                        try {
-                            const isSuccess = await sendDataForm();
-                            if (isSuccess) {
-                                onClose();
-                            }
-                        } catch (error) {
-                            alert('Ошибка запроса. Подробности в console');
-                            console.error('Error submitting form:', error);
-                        }
-                    }}>
+                    <Button color="primary" type="submit" onClick={() => {handleClick() && handleFunction(); onClose(); }}>
                         Сохранить
                     </Button>
                 </ModalFooter>

@@ -77,7 +77,8 @@ async def users_delete(auth_token: str = Header()):
         try:
             resp = await session.execute(query)
             resp = resp.scalars().first()
-            session.delete(resp)
+            await session.delete(resp)
+            await session.commit()
             return 'OK'
         except Exception:
             return 'Error'

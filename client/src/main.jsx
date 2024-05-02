@@ -1,6 +1,6 @@
 import React from "react";
+import AdminLayout from "./layouts/AdminLayout";
 import UserLayout from "./layouts/UserLayout";
-
 import ErrorPage from "./pages/Error"
 import HomePage from "./pages/Home"
 import SchedulePage from "./pages/Schedules"
@@ -11,6 +11,8 @@ import DirectionsPage from "./pages/Directions"
 import TeachersPage from "./pages/Teachers"
 import UsersPage from "./pages/Users"
 import OrganizationPage from "./pages/Organization"
+import TestPage from "./pages/Test";
+import LoginPage from "./pages/Login";
 
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
@@ -18,75 +20,94 @@ import { NextUIProvider } from "@nextui-org/react";
 import App from "./App";
 import "./index.css";
 
+import { ToastProvider } from "./pages/context/ToastContext";
+
 const router = createBrowserRouter([
-  
   {
     path: "*",
-    element: <UserLayout>
+    element: 
       <ErrorPage />
-      </UserLayout>,
   },
   {
     path: "/",
-    element: <UserLayout>
+    element: <UserLayout>123</UserLayout>,
+  },
+  {
+    path: "/admin/",
+    element: <AdminLayout>
       <HomePage />
-      </UserLayout>,
+      </AdminLayout>,
   },
   {
-    path: "/schedules/",
-    element: <UserLayout>
+    path: "/admin/login",
+    element: <LoginPage/>,
+  },
+  {
+    path: "/test/",
+    element: <AdminLayout>
+      <TestPage />
+      </AdminLayout>,
+  },
+  {
+    path: "/admin/schedules/",
+    element: <AdminLayout>
       <SchedulePage />
-      </UserLayout>,
+      </AdminLayout>,
   },
   {
-    path: "/groups/",
-    element: <UserLayout>
+    path: "/admin/groups/",
+    element: <AdminLayout>
       <GroupsPage />
-      </UserLayout>,
+      </AdminLayout>,
   },
   {
-    path: "/flows/",
-    element: <UserLayout>
+    path: "/admin/flows/",
+    element: <AdminLayout>
       <FlowsPage />
-      </UserLayout>,
+      </AdminLayout>,
   },
   {
-    path: "/disciplines/",
-    element: <UserLayout>
+    path: "/admin/disciplines/",
+    element: <AdminLayout>
       <DisciplinesPage />
-      </UserLayout>,
+      </AdminLayout>,
   },
   {
-    path: "/directions/",
-    element: <UserLayout>
+    path: "/admin/directions/",
+    element: <AdminLayout>
       <DirectionsPage />
-      </UserLayout>,
+      </AdminLayout>,
   },
   {
-    path: "/teachers/",
-    element: <UserLayout>
+    path: "/admin/teachers/",
+    element: <AdminLayout>
       <TeachersPage />
-      </UserLayout>,
+      </AdminLayout>,
   },
   {
-    path: "/users/",
-    element: <UserLayout>
+    path: "/admin/users/",
+    element: <AdminLayout>
       <UsersPage />
-      </UserLayout>,
+      </AdminLayout>,
   },
   {
-    path: "/organization/",
-    element: <UserLayout>
+    path: "/admin/organization/",
+    element: <AdminLayout>
       <OrganizationPage />
-      </UserLayout>,
+      </AdminLayout>,
   }
   
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <NextUIProvider className="h-full">
-      <RouterProvider router={router} />
-    </NextUIProvider>
+    
+      <NextUIProvider className="h-full">
+      <ToastProvider>
+        <RouterProvider router={router} />
+        </ToastProvider>
+      </NextUIProvider>
+
   </React.StrictMode>
 );
+

@@ -15,7 +15,7 @@ async def db_select_by_id(model, id: int or None = None):
     return result
 
 
-async def db_delete_by_id(model, id: int):
+async def db_delete_by_id(model, id):
     async with session_factory() as session:
         x = await session.get(model, id)
         await session.delete(x)

@@ -1,16 +1,33 @@
-import React from "react";
-import Sidebar from "../components/managment/Sidebar/Sidebar"
-import Favicon from "react-favicon"
+import React, {useState} from "react";
+import Favicon from "react-favicon";
+import Header from "../components/public/Header";
+import Footer from "../components/public/Footer";
+import Context from "./Context";
+import ProgramsList from "./ProgramsList";
 
-export default function UserLayout({ children }) {
+document.title = 'Расписание СПБ ГБУ УМЦ';
+
+export default function UserLayout() {
+
+  const [contentPage, setContentPage] = useState(<ProgramsList/>);
+  const loadContentPage = (content) => {setContentPage(content)};
+
+  const value={
+    contentPage,loadContentPage
+  }
+
   return (
-    
-    <div className="h-dvh flex">
-      <Favicon url="../../public/favicon.ico"></Favicon>
-        <Sidebar />
-        <div className="h-dvh absolute top-0 left-0 right-0 pl-[100px] pr-[20px] py-[20px] w-full bg-stone-100 overflow-y-auto">
-        {children}
+    <Context.Provider value={value}>
+      <div className="h-dvh">
+        <Favicon url="../../public/favicon.ico"></Favicon>
+        <div className="container m-auto  h-[calc(100dvh_-130px)] overflow-auto">
+          <Header />
+          <div className="content px-[15px]">
+            {contentPage}
+          </div>
         </div>
-  </div>
+        <Footer />
+      </div>
+    </Context.Provider>
   );
 }

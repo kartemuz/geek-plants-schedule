@@ -1,5 +1,5 @@
 import React from "react";
-export const OrganizationIcon = (props) => (
+export const HouseIcon = (props) => (
     <svg 
         width="27" 
         height="32" 

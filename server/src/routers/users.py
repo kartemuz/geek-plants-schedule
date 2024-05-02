@@ -1,21 +1,164 @@
-from fastapi import APIRouter
-from server.src.database import models
-from server.src.database import schemas
+from fastapi import APIRouter, Header
+from server.src.database import models, schemas, queries, session_factory
+from typing import Optional
+from sqlalchemy import select, update, insert, func
+from sqlalchemy.orm import aliased, selectinload
+import jwt
 
 
 users_router = APIRouter(
     prefix="/users",
     tags=["users"]
 )
-model = models.User
 schema = schemas.User
+model = models.User
 
 
-@users_router.post('/register')
-async def register(data: schema):
-    pass
+options_router = APIRouter(
+    prefix="/options"
+)
+
+
+role_router = APIRouter(
+    prefix="/role"
+)
+
+
+# @users_router.post('/register')
+# async def register(data: schema):
+#     pass
 
 
 @users_router.post('/auth')
-async def auth(data: schema):
-    pass
+async def auth(data: schemas.AuthUser):
+    async with session_factory() as session:
+        query = select(models.User).where(data.login == models.User.login)
+        resp = await session.execute(query)
+        resp = resp.scalars().first()
+        print(resp)
+    try:
+        if resp.password == data.password:
+            tkn = jwt.encode(data.dict(), 'secret', algorithm='HS256')
+            md = models.UserSession(user_id=resp.id, token=tkn)
+            session.add(md)
+            await session.commit()
+
+            return tkn
+        else:
+            return 'message_notFoundUser'
+    except AttributeError:
+        return 'message_notFoundUser'
+
+
+@users_router.post('/get')
+async def users_get(auth_token: str = Header()):
+    query = select(models.UserSession).where(auth_token == models.UserSession.token)
+    async with session_factory() as session:
+        resp = await session.execute(query)
+        resp = resp.scalars().first()
+
+    if resp:
+        query = select(models.User).options(
+            selectinload(models.User.user_role).selectinload(models.UsersRole.opportunity).selectinload(
+                models.UserOpportunity.options
+            )
+        )
+        result = await session.execute(query)
+        result = result.scalars().first()
+        return result
+    else:
+        return 'Error'
+
+
+@users_router.post('/delete')
+async def users_delete(auth_token: str = Header()):
+    query = select(models.UserSession).where(models.UserSession.token == auth_token)
+    async with session_factory() as session:
+        try:
+            resp = await session.execute(query)
+            resp = resp.scalars().first()
+            session.delete(resp)
+            return 'OK'
+        except Exception:
+            return 'Error'
+
+
+# @users_router.get('/get')
+# async def users_get(login: Optional[str] = None):
+#     async with session_factory() as session:
+#         query = select(model)
+#         if login is not None:
+#             query = query.where(model.login == login)
+#         result = await session.execute(query)
+#     return result.scalars().all()
+
+
+@users_router.post('/edit')
+async def edit_user(data: schema):
+    async with session_factory() as session:
+        query = update(model).where(model.login == data.login).values(data.dict())
+        await session.execute(query)
+        await session.commit()
+
+
+@users_router.post('/new')
+async def add_user(data: schema):
+    await queries.db_insert(model, **data.dict())
+
+
+@users_router.get('/delete')
+async def delete_user(id: str):
+    return await queries.db_delete_by_id(model, id)
+
+
+@options_router.get('/get')
+async def get_options(id: Optional[int] = None):
+    opt = aliased(models.Options)
+    async with session_factory() as session:
+        query = select(opt)
+        if id is not None:
+           query = query.where(opt.id == id)
+        result = await session.execute(query)
+    return result.scalars().all()
+
+
+@role_router.get('/get')
+async def get_role(id: Optional[int] = None):
+    async with session_factory() as session:
+
+        query = select(
+            models.UsersRole
+        ).options(
+            selectinload(models.UsersRole.opportunity).selectinload(models.UserOpportunity.options)
+        )
+        if id is not None:
+            query = query.where(models.UsersRole.id == id)
+        query_res = await session.execute(query)
+        query_res = query_res.scalars().all()
+
+    return query_res
+
+
+@role_router.post('/edit')
+async def edit_role(data: schemas.UserRole):
+    await queries.db_update(models.UsersRole, **data.dict())
+
+
+@role_router.post('/new')
+async def add_role(data: schemas.UserRole):
+    await queries.db_insert(models.UsersRole, **data.dict())
+
+
+@role_router.get('/delete')
+async def delete_role(id: int):
+    return await queries.db_delete_by_id(models.UsersRole, id)
+
+
+routers = (
+    options_router,
+    role_router
+)
+
+
+for r in routers:
+    users_router.include_router(r)

@@ -2,6 +2,7 @@ from pydantic import BaseModel
 from typing import Optional
 from server.src.database.models import dir_type
 
+
 import datetime
 
 
@@ -24,6 +25,7 @@ class Teacher(BaseModel):
 class Group(BaseModel):
     id: Optional[int] = None
     direction_id: Optional[int] = None
+    file_upload: Optional[str] = None
 
 
 class Flow(BaseModel):
@@ -47,7 +49,44 @@ class Schedule(BaseModel):
     teacher_id: int
     discipline_id: int
     flow_id: int
+    change_id: Optional[int] = None
 
 
 class User(BaseModel):
-    pass
+    login: str
+    user_role_id: int
+    password: str
+    lastname: str
+    firstname: str
+    surname: str
+
+
+class UserRole(BaseModel):
+    id: int
+    title: int
+
+
+class UserOpportunity(BaseModel):
+    user_type: int
+    option: int
+
+
+class Options(BaseModel):
+    id: int
+    title: str
+
+
+class Org(BaseModel):
+    id: int
+    address: str
+    phone: str
+    email: Optional[str] = None
+    vk: Optional[str] = None
+    telegram: Optional[str] = None
+    full_name: Optional[str] = None
+    abbr_name: Optional[str] = None
+
+
+class AuthUser(BaseModel):
+    login: str
+    password: str

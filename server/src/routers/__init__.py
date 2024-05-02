@@ -9,12 +9,11 @@ from server.src.routers.schedule import schedule_router
 from server.src.routers.teachers import teachers_router
 from server.src.routers.search_schedule import search_schedule_router
 from server.src.routers.users import users_router
-from server.src.routers.organization import organization_router
+from server.src.routers.org import org_router
 
 
 api_router = APIRouter(
-    prefix="/api",
-    tags=["API"]
+    prefix="/api"
 )
 
 
@@ -27,7 +26,7 @@ routers = (
     teachers_router,
     search_schedule_router,
     users_router,
-    organization_router
+    org_router
 )
 
 

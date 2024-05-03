@@ -23,9 +23,13 @@ import {UserIcon} from '../../../assets/icons/UserIcon.jsx'
 import {HouseIcon} from '../../../assets/icons/HouseIcon.jsx'
 import {LogoutIcon} from '../../../assets/icons/LogoutIcon.jsx'
 import './sidebar.css';
+import { isAuthenticated } from '../../auth.jsx';
 import { useNavigate } from 'react-router-dom';
 
 function Sidebar(){
+
+  console.log("OK")
+
   const toast = useToast();
 
     const path = window.location.pathname;
@@ -89,7 +93,9 @@ function Sidebar(){
     },
   ];
 
-  const [userData, setUserData] = useState();
+  const [userData, setUserData] = useState({});
+
+ 
 
 useEffect(() => {
   if(localStorage.getItem('jwtToken') != null){
@@ -109,7 +115,9 @@ useEffect(() => {
   }
 },[]);
 
-function handleLogOut(){
+const navigate = useNavigate();
+
+function handleLogOut() {
   axios.post(`${apiServer}/users/delete/`, null, {
     headers: {
       'auth-token': localStorage.getItem('jwtToken')
@@ -117,9 +125,13 @@ function handleLogOut(){
   })
   .then(response => {
     localStorage.removeItem('jwtToken');
-    document.location.href = "/admin/login/";
+    navigate('/admin/login'); // Перенаправляем пользователя на страницу входа
+  })
+  .catch(error => {
+    // Обработка ошибки
   });
 }
+
 
   return (
     <div className="sidebar flex flex-col flex-wrap justify-between flex-wrap items-baseline overflow-hidden relative group fixed z-[20] top-0 left-0 right-0 h-dvh w-[80px] px-[15px] py-[50px] bg-zinc-200 rounded-r-[20px] hover:w-[420px] hover:shadow-lg hover:shadow-lg:shadow-stone-700 transition-all duration-30">
@@ -129,8 +141,9 @@ function handleLogOut(){
           </div>
           <Link href="/admin/profile/">
           <div className="user ml-[15px] whitespace-nowrap overflow-hiddden float-left text-small">
-            <div className="font-medium text-[20px] text-black">{userData != null && userData.lastname + " " + userData.firstname + " " + userData.surname }</div>
-            <div className="text-[16px] text-stone-500 ">{userData != null && userData.user_role.title }</div>
+            <div className="font-medium text-[20px] text-black">{userData !== undefined && userData.lastname + " " + userData.firstname + " " + userData.surname }</div>
+            <div className="text-[16px] text-stone-500 ">{userData !== undefined && userData.user_role !== undefined && userData.user_role.title }
+</div>
           </div>
           </Link>
         </div>

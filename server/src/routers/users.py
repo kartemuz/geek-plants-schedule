@@ -90,6 +90,10 @@ async def users_get_all():
     return result.mappings().all()
 
 
+def send_email(email: str, message: str):
+    pass
+
+
 @users_router.post('/edit')
 async def edit_user(data: schema):
     async with session_factory() as session:

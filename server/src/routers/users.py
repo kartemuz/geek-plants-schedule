@@ -78,14 +78,16 @@ async def users_delete(auth_token: str = Header()):
             return 'Error'
         
 
-# @users_router.get('/get')
-# async def users_get(login: Optional[str] = None):
-#     async with session_factory() as session:
-#         query = select(model)
-#         if login is not None:
-#             query = query.where(model.login == login)
-#         result = await session.execute(query)
-#     return result.scalars().all()
+@users_router.get('/get_all')
+async def users_get_all():
+    async with session_factory() as session:
+        query = select(models.User).options(
+            selectinload(models.User.user_role).selectinload(models.UsersRole.opportunity).selectinload(
+                models.UserOpportunity.options
+            )
+        )
+        result = await session.execute(query)
+    return result.mappings().all()
 
 
 @users_router.post('/edit')

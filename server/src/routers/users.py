@@ -4,6 +4,9 @@ from typing import Optional
 from sqlalchemy import select, update, insert, func
 from sqlalchemy.orm import aliased, selectinload
 import jwt
+import smtplib
+from email.mime.text import MIMEText
+from email.header import Header
 
 
 users_router = APIRouter(
@@ -91,7 +94,26 @@ async def users_get_all():
 
 
 def send_email(email: str, message: str):
-    pass
+    login = 'почта_отправителя'  # заполнить
+    password = 'пароль_отправителя'  # заполнить
+    host = login[login.index('@') + 1:]
+
+    msg = MIMEText(f'{message}', 'plain', 'utf-8')
+    msg['Subject'] = Header('Письмо от СПб ГБУ УМЦ', 'utf-8')  # тема письма
+    msg['From'] = login
+    msg['To'] = email
+
+    s = smtplib.SMTP('smtp.' + f'{host}', 587, timeout=10)
+
+    try:
+        s.starttls()
+        s.login(login, password)
+        s.sendmail(msg['From'], email, msg.as_string())
+        return 'OK'
+    except Exception:
+        return 'Error'
+    finally:
+        s.quit()
 
 
 @users_router.post('/edit')
